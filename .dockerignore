@@ -1,0 +1,8 @@
+venv
+dataset
+dataset_old
+test_images
+outputs
+runs
+__pycache__
+.git
