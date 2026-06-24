@@ -50,4 +50,15 @@ async def receive_webhook(request: Request):
     print("WHATSAPP EVENT:")
     print(data)
 
+    try:
+        msg = data["entry"][0]["changes"][0]["value"]["messages"][0]
+
+        print("TYPE:", msg["type"])
+
+        if msg["type"] == "image":
+            print("IMAGE RECEIVED")
+
+    except Exception as e:
+        print("ERROR:", e)
+
     return {"status": "ok"}
