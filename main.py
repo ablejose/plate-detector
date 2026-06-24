@@ -83,12 +83,16 @@ async def receive_webhook(request: Request):
 
                             with open("whatsapp_input.jpg", "wb") as f:
                                 f.write(image_response.content)
+                                print("DOWNLOAD STATUS:", image_response.status_code)
+                                print("CONTENT TYPE:", image_response.headers.get("content-type"))
+                                print("FILE SIZE:", os.path.getsize("whatsapp_input.jpg"))
 
                             print("IMAGE DOWNLOADED")
                             process_image(
                                 "whatsapp_input.jpg",
                                 "whatsapp_output.jpg"
                             )
+                            
 
                             print("IMAGE PROCESSED")
                             files = {
