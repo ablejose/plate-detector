@@ -6,3 +6,11 @@ outputs
 runs
 __pycache__
 .git
+venv
+__pycache__
+uploads
+car.jpg
+output.jpg
+batch_test.py
+test_local.py
+.git
