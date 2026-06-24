@@ -59,85 +59,101 @@ async def receive_webhook(request: Request):
 
             if msg["type"] == "image":
 
-                print("IMAGE RECEIVED")
+                            print("IMAGE RECEIVED")
 
 
-                token = os.getenv("WHATSAPP_TOKEN")
+                            token = os.getenv("WHATSAPP_TOKEN")
 
-                media_id = msg["image"]["id"]
+                            media_id = msg["image"]["id"]
 
-                url = f"https://graph.facebook.com/v23.0/{media_id}"
+                            url = f"https://graph.facebook.com/v23.0/{media_id}"
 
-                headers = {
-                    "Authorization": f"Bearer {token}"
+                            headers = {
+                                "Authorization": f"Bearer {token}"
+                            }
+
+                            response = requests.get(url, headers=headers)
+
+                            print("MEDIA INFO:")
+                            print(response.json())
+                            media_info = response.json()
+
+                            image_url = media_info["url"]
+
+                            image_response = requests.get(
+                                image_url,
+                                headers=headers
+                            )
+
+                            with open("whatsapp_input.jpg", "wb") as f:
+                                f.write(image_response.content)
+
+                            print("IMAGE DOWNLOADED")
+                            process_image(
+                                "whatsapp_input.jpg",
+                                "whatsapp_output.jpg"
+                            )
+
+                            print("IMAGE PROCESSED")
+                            files = {
+                                "file": (
+                                    "whatsapp_output.jpg",
+                                    open("whatsapp_output.jpg", "rb"),
+                                    "image/jpeg"
+                                )
+                            }
+                            import os
+
+                            print("OUTPUT EXISTS:", os.path.exists("whatsapp_output.jpg"))
+                            print("OUTPUT SIZE:", os.path.getsize("whatsapp_output.jpg"))
+
+                            data_upload = {
+                    "messaging_product": "whatsapp"
                 }
 
-                response = requests.get(url, headers=headers)
+                            upload_response = requests.post(
+                                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/media",
+                                headers={
+                                    "Authorization": f"Bearer {token}"
+                                },
+                                files=files,
+                                data=data_upload
+                            )
 
-                print("MEDIA INFO:")
-                print(response.json())
-                media_info = response.json()
+                            upload_json = upload_response.json()
 
-                image_url = media_info["url"]
+                            print("UPLOAD RESPONSE:")
+                            print(upload_json)
 
-                image_response = requests.get(
-                    image_url,
-                    headers=headers
-                )
+                            if "id" not in upload_json:
+                                return {"status": "upload failed"}
 
-                with open("whatsapp_input.jpg", "wb") as f:
-                    f.write(image_response.content)
+                            media_id_uploaded = upload_json["id"]
 
-                print("IMAGE DOWNLOADED")
-                process_image(
-                    "whatsapp_input.jpg",
-                    "whatsapp_output.jpg"
-                )
+                            sender = msg["from"]
 
-                print("IMAGE PROCESSED")
-                files = {
-                "file": open("whatsapp_output.jpg", "rb")
-            }
+                            send_response = requests.post(
+                                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/messages",
+                                headers={
+                                    "Authorization": f"Bearer {token}",
+                                    "Content-Type": "application/json"
+                                },
+                                json={
+                                    "messaging_product": "whatsapp",
+                                    "to": sender,
+                                    "type": "image",
+                                    "image": {
+                                        "id": media_id_uploaded
+                                    }
+                                }
+                            )
 
-            data_upload = {
-                "messaging_product": "whatsapp"
-            }
+                            print("SEND RESPONSE:")
+                            print(send_response.json())
 
-            upload_response = requests.post(
-                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/media",
-                headers={
-                    "Authorization": f"Bearer {token}"
-                },
-                files=files,
-                data=data_upload
-            )
-
-            print("UPLOAD RESPONSE:")
-            print(upload_response.json())
-            media_id_uploaded = upload_response.json()["id"]
-
-            sender = msg["from"]
-
-            send_response = requests.post(
-                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/messages",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "messaging_product": "whatsapp",
-                    "to": sender,
-                    "type": "image",
-                    "image": {
-                        "id": media_id_uploaded
-                    }
-                }
-            )
-
-            print("SEND RESPONSE:")
-            print(send_response.json())
+                        
         except Exception as e:
-            print("ERROR:", e)
+                    print("ERROR:", e)
 
-        return {"status": "ok"}
+                    return {"status": "ok"}
 
