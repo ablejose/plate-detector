@@ -20,7 +20,7 @@ def process_image(input_path, output_path):
 
     results = model(
             image,
-            conf=0.10,
+            conf=0.5,
             imgsz=640
         )
 
