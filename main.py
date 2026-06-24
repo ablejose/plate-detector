@@ -102,7 +102,6 @@ async def receive_webhook(request: Request):
                                     "image/jpeg"
                                 )
                             }
-                            import os
 
                             print("OUTPUT EXISTS:", os.path.exists("whatsapp_output.jpg"))
                             print("OUTPUT SIZE:", os.path.getsize("whatsapp_output.jpg"))
