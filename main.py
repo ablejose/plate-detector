@@ -76,6 +76,25 @@ async def receive_webhook(request: Request):
 
                 print("MEDIA INFO:")
                 print(response.json())
+                media_info = response.json()
+
+                image_url = media_info["url"]
+
+                image_response = requests.get(
+                    image_url,
+                    headers=headers
+                )
+
+                with open("whatsapp_input.jpg", "wb") as f:
+                    f.write(image_response.content)
+
+                print("IMAGE DOWNLOADED")
+                process_image(
+                    "whatsapp_input.jpg",
+                    "whatsapp_output.jpg"
+                )
+
+                print("IMAGE PROCESSED")
 
         except Exception as e:
             print("ERROR:", e)
