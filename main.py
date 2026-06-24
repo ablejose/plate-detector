@@ -95,7 +95,47 @@ async def receive_webhook(request: Request):
                 )
 
                 print("IMAGE PROCESSED")
+                files = {
+                "file": open("whatsapp_output.jpg", "rb")
+            }
 
+            data_upload = {
+                "messaging_product": "whatsapp"
+            }
+
+            upload_response = requests.post(
+                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/media",
+                headers={
+                    "Authorization": f"Bearer {token}"
+                },
+                files=files,
+                data=data_upload
+            )
+
+            print("UPLOAD RESPONSE:")
+            print(upload_response.json())
+            media_id_uploaded = upload_response.json()["id"]
+
+            sender = msg["from"]
+
+            send_response = requests.post(
+                f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/messages",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "messaging_product": "whatsapp",
+                    "to": sender,
+                    "type": "image",
+                    "image": {
+                        "id": media_id_uploaded
+                    }
+                }
+            )
+
+            print("SEND RESPONSE:")
+            print(send_response.json())
         except Exception as e:
             print("ERROR:", e)
 
