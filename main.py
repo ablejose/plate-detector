@@ -3,29 +3,34 @@ from fastapi.responses import FileResponse
 import shutil
 import os
 from replace_plate import process_image
+import tempfile
+import os
+
+from fastapi import FastAPI, UploadFile, File
+from fastapi.responses import FileResponse
+import tempfile
+import shutil
+import os
+
+from replace_plate import process_image
 
 app = FastAPI()
-
-UPLOAD_DIR = "uploads"
-OUTPUT_DIR = "outputs"
-
-os.makedirs(UPLOAD_DIR, exist_ok=True)
-os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 @app.post("/process")
 async def process(file: UploadFile = File(...)):
 
-    input_path = os.path.join(UPLOAD_DIR, file.filename)
-    output_path = os.path.join(OUTPUT_DIR, file.filename)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as input_file:
+        shutil.copyfileobj(file.file, input_file)
+        input_path = input_file.name
 
-    with open(input_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as output_file:
+        output_path = output_file.name
 
     process_image(input_path, output_path)
 
     return FileResponse(
         output_path,
         media_type="image/jpeg",
-        filename=f"processed_{file.filename}"
+        filename="processed.jpg"
     )
