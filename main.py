@@ -63,22 +63,18 @@ async def receive_webhook(request: Request):
 
 
                             token = os.getenv("WHATSAPP_TOKEN")
-
-                            media_id = msg["image"]["id"]
-
-                            url = f"https://graph.facebook.com/v23.0/{media_id}"
-
                             headers = {
                                 "Authorization": f"Bearer {token}"
                             }
 
-                            response = requests.get(url, headers=headers)
 
-                            print("MEDIA INFO:")
-                            print(response.json())
-                            media_info = response.json()
+                            print("PHONE_NUMBER_ID:", os.getenv("PHONE_NUMBER_ID"))
+                            print("TOKEN EXISTS:", bool(token))
+                            print("TOKEN LENGTH:", len(token) if token else 0)
 
-                            image_url = media_info["url"]
+                            image_url = msg["image"]["url"]
+
+                            print("IMAGE URL FOUND:", image_url[:80])
 
                             image_response = requests.get(
                                 image_url,
@@ -107,8 +103,8 @@ async def receive_webhook(request: Request):
                             print("OUTPUT SIZE:", os.path.getsize("whatsapp_output.jpg"))
 
                             data_upload = {
-                    "messaging_product": "whatsapp"
-                }
+                                "messaging_product": "whatsapp"
+                            }
 
                             upload_response = requests.post(
                                 f"https://graph.facebook.com/v23.0/{os.getenv('PHONE_NUMBER_ID')}/media",
