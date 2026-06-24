@@ -149,6 +149,10 @@ async def receive_webhook(request: Request):
 
                             print("SEND RESPONSE:")
                             print(send_response.json())
+                            os.remove("whatsapp_input.jpg")
+                            os.remove("whatsapp_output.jpg")
+
+                            print("TEMP FILES DELETED")
 
                         
         except Exception as e:
