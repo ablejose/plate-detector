@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import FileResponse
 import tempfile
 import shutil
+import requests
+import os
 
 from replace_plate import process_image
 
@@ -45,40 +47,38 @@ async def verify_webhook(request: Request):
 @app.post("/webhook")
 async def receive_webhook(request: Request):
 
-    data = await request.json()
+        data = await request.json()
 
-    print("WHATSAPP EVENT:")
-    print(data)
+        print("WHATSAPP EVENT:")
+        print(data)
 
-    try:
-        msg = data["entry"][0]["changes"][0]["value"]["messages"][0]
+        try:
+            msg = data["entry"][0]["changes"][0]["value"]["messages"][0]
 
-        print("TYPE:", msg["type"])
+            print("TYPE:", msg["type"])
 
-        if msg["type"] == "image":
             if msg["type"] == "image":
 
-    print("IMAGE RECEIVED")
+                print("IMAGE RECEIVED")
 
-    import requests
-    import os
 
-    token = os.getenv("WHATSAPP_TOKEN")
+                token = os.getenv("WHATSAPP_TOKEN")
 
-    media_id = msg["image"]["id"]
+                media_id = msg["image"]["id"]
 
-    url = f"https://graph.facebook.com/v23.0/{media_id}"
+                url = f"https://graph.facebook.com/v23.0/{media_id}"
 
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
+                headers = {
+                    "Authorization": f"Bearer {token}"
+                }
 
-    response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=headers)
 
-    print("MEDIA INFO:")
-    print(response.json())
+                print("MEDIA INFO:")
+                print(response.json())
 
-    except Exception as e:
-        print("ERROR:", e)
+        except Exception as e:
+            print("ERROR:", e)
 
-    return {"status": "ok"}
+        return {"status": "ok"}
+
