@@ -56,7 +56,27 @@ async def receive_webhook(request: Request):
         print("TYPE:", msg["type"])
 
         if msg["type"] == "image":
-            print("IMAGE RECEIVED")
+            if msg["type"] == "image":
+
+    print("IMAGE RECEIVED")
+
+    import requests
+    import os
+
+    token = os.getenv("WHATSAPP_TOKEN")
+
+    media_id = msg["image"]["id"]
+
+    url = f"https://graph.facebook.com/v23.0/{media_id}"
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    print("MEDIA INFO:")
+    print(response.json())
 
     except Exception as e:
         print("ERROR:", e)
