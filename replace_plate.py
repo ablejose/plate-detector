@@ -20,7 +20,8 @@ def process_image(input_path, output_path):
 
     results = model(
             image,
-            conf=0.15
+            conf=0.10,
+            imgsz=640
         )
 
     for box in results[0].boxes:
